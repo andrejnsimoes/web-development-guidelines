@@ -1,0 +1,12 @@
+{
+  "name": "javascript-best-practices",
+  "version": "1.0.0",
+  "author": "asimoes",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "devDependencies": {
+    "vuepress": "0.14.2"
+  }
+}
