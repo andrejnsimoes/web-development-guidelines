@@ -35,5 +35,4 @@ yarn build
 ## Built With
 
 * [VuePress](https://github.com/vuejs/vuepress) - Minimalistic Vue-powered static site generator
-)
 

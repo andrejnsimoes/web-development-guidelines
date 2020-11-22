@@ -4,7 +4,7 @@
   "author": "asimoes",
   "scripts": {
     "start": "vuepress dev docs",
-    "build": "vuepress build blog"
+    "build": "vuepress build"
   },
   "devDependencies": {
     "markdown-it-video": "0.6.3",
