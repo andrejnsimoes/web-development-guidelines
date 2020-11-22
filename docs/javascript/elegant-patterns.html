@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Receive an object, return an object</title>
+    <meta name="description" content="">
+    
+    
+    <link rel="preload" href="/web-development-guidelines/assets/css/0.styles.55b66cfc.css" as="style"><link rel="preload" href="/web-development-guidelines/assets/js/app.619e207b.js" as="script"><link rel="preload" href="/web-development-guidelines/assets/js/25.0dd8fbbb.js" as="script"><link rel="prefetch" href="/web-development-guidelines/assets/js/15.35f51890.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/2.cda51ec0.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/3.9f1531d6.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/4.87c874f8.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/5.dd094de2.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/6.e9c321fb.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/7.250c8d9d.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/8.348a10fe.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/9.6392689b.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/10.bd1c58ab.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/11.d21adb37.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/12.3cd62bb9.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/13.b26b65b0.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/14.8faec2af.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/16.94cda7f5.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/17.0c7f3574.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/18.b59d2269.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/19.ade22912.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/20.3662ab7a.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/21.d8d39710.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/22.97a30b23.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/23.4c4f544d.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/24.64505df8.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/26.be3c1b35.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/27.4ecc62cd.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/28.be69aaab.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/29.b3a0daa6.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/30.3e451a60.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/31.f23344bd.js">
+    <link rel="stylesheet" href="/web-development-guidelines/assets/css/0.styles.55b66cfc.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/web-development-guidelines/" class="home-link router-link-active"></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><!---->  <!----> </div> <div class="page"> <div class="content"><h2 id="receive-an-object-return-an-object"><a href="#receive-an-object-return-an-object" aria-hidden="true" class="header-anchor">#</a> Receive an object, return an object</h2> <p>Most of my functions now accept a single parameter of type object and many of them return or resolve to a value of type object as well.</p> <p>Thanks in part to the <em>destructuring</em> feature introduced in ES2015, I’ve found this to be a powerful pattern. I’ve even given it the silly name, “RORO” because… branding? ¯_(ツ)_/¯</p> <p>Here are some reasons why you’ll love this pattern:</p> <ul><li><p>Named parameters</p></li> <li><p>Cleaner default parameters</p></li> <li><p>Richer return values</p></li> <li><p>Easy function composition</p></li></ul> <p>Let’s look at each one.</p> <h2 id="named-parameters"><a href="#named-parameters" aria-hidden="true" class="header-anchor">#</a> Named Parameters</h2> <p>Suppose we have a function that returns a list of Users in a given Role and suppose we need to provide an option for including each User’s Contact Info and another option for including Inactive Users, traditionally we might write:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span>
+</code></pre></div><p>A call to this function might then look like:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span>
+  <span class="token string">'admin'</span><span class="token punctuation">,</span>
+  <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token boolean">true</span>
+<span class="token punctuation">)</span>
+</code></pre></div><p>Notice how ambiguous those last two parameters are. What does “true, true” refer to?</p> <p>What happens if our app almost never needs Contact Info but almost always needs Inactive Users? We have to contend with that middle parameter all the time, even though it’s not really relevant (more on that later).</p> <p>In short, this traditional approach leaves us with potentially ambiguous, noisy code that’s harder to understand and trickier to write.</p> <p>Let’s see what happens when we receive a single object instead:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span>
+</code></pre></div><p>Notice our function looks almost identical except that <strong>we’ve put braces around our parameters</strong>. This indicates that instead of receiving three distinct parameters, our function now expects a single object with properties named role, withContactInfo, and includeInactive.</p> <p>This works because of a JavaScript feature introduced in ES2015 called <em>Destructuring</em>.</p> <p>Now we can call our function like this:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">:</span> <span class="token string">'admin'</span><span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  includeInactive<span class="token punctuation">:</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>This is far less ambiguous and a lot easier to read and understand. Plus, omitting or re-ordering our parameters is no longer an issue since they are now the named properties of an object.</p> <p>For example, this works:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  withContactInfo<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  role<span class="token punctuation">:</span> <span class="token string">'admin'</span><span class="token punctuation">,</span>
+  includeInactive<span class="token punctuation">:</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>And so does this:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">:</span> <span class="token string">'admin'</span><span class="token punctuation">,</span>
+  includeInactive<span class="token punctuation">:</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>This also makes it possible to add new parameters without breaking old code.</p> <p>One important note here is that if we want all the parameters to be optional, in other words, if the following is a valid call…</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre></div><p>… we need to set a default value for our parameter object, like so:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span>
+</code></pre></div><p>An added benefit of using destructuring for our parameter object is that it promotes immutability. When we destructure the object on its way into our function we assign the object’s properties to new variables. Changing the value of those variables will not alter the original object.</p> <p>Consider the following:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token punctuation">{</span>
+  role<span class="token punctuation">:</span> <span class="token string">'Admin'</span><span class="token punctuation">,</span>
+  includeInactive<span class="token punctuation">:</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">findUsersByRole</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span>
+
+<span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  role <span class="token operator">=</span> role<span class="token punctuation">.</span><span class="token function">toLowerCase</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>role<span class="token punctuation">)</span> <span class="token comment">// 'admin'</span>
+  <span class="token operator">...</span>
+<span class="token punctuation">}</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>role<span class="token punctuation">)</span> <span class="token comment">// 'Admin'</span>
+</code></pre></div><p>Even though we change the value of role the value of options.role remains unchanged.</p> <blockquote><p>**It’s worth noting that destructuring makes a **shallow *<em>copy so if any of the properties of our parameter object are of a complex type (e.g. array or object) changing them would indeed affect the original.</em></p></blockquote> <p>So far, so good, yeah?</p> <h2 id="cleaner-default-parameters"><a href="#cleaner-default-parameters" aria-hidden="true" class="header-anchor">#</a> Cleaner Default Parameters</h2> <p>With ES2015 JavaScript functions gained the ability to define default parameters. In fact, we recently used a default parameter when we added ={} to the parameter object on our findUsersByRole function above.</p> <p>With traditional default parameters, our findUsersByRole function might look like this.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span>
+</code></pre></div><p>If we want to set includeInactive to true we have to explicitly pass undefined as the value for withContactInfo to preserve the default, like this:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span>
+  <span class="token string">'Admin'</span><span class="token punctuation">,</span>
+  undefined<span class="token punctuation">,</span>
+  <span class="token boolean">true</span>
+<span class="token punctuation">)</span>
+</code></pre></div><p>How hideous is that?</p> <p>Compare it to using a parameter object like so:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span>
+</code></pre></div><p>Now we can write…</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token function">findUsersByRole</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">:</span> ‘Admin’<span class="token punctuation">,</span>
+  includeInactive<span class="token punctuation">:</span> <span class="token boolean">true</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>… and our default value for withContactInfo is preserved.</p> <h2 id="bonus-required-parameters"><a href="#bonus-required-parameters" aria-hidden="true" class="header-anchor">#</a> BONUS: Required Parameters</h2> <p>How often have you written something like this?</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role<span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>role <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">throw</span> <span class="token function">Error</span><span class="token punctuation">(</span><span class="token operator">...</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token operator">...</span>
+<span class="token punctuation">}</span>
+</code></pre></div><blockquote><p>***Note: *<em>We use == (double equals) above to test for both null and undefined with a single statement.</em></p></blockquote> <p>What if I told you that you could use default parameters to validate required parameters instead?</p> <p>First, we need to define a requiredParam() function that throws an Error.</p> <p>Like this:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">requiredParam</span> <span class="token punctuation">(</span>param<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> requiredParamError <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span>
+    <span class="token template-string"><span class="token string">`Required parameter, &quot;</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>param<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">&quot; is missing.`</span></span>
+  <span class="token punctuation">)</span>
+
+  <span class="token comment">// preserve original stack trace</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> Error<span class="token punctuation">.</span>captureStackTrace <span class="token operator">===</span> ‘<span class="token keyword">function</span>’<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    Error<span class="token punctuation">.</span><span class="token function">captureStackTrace</span><span class="token punctuation">(</span>
+      requiredParamError<span class="token punctuation">,</span>
+      requiredParam
+    <span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">throw</span> requiredParamError
+<span class="token punctuation">}</span>
+</code></pre></div><blockquote><p>*I know, I know. requiredParam doesn’t RORO. That’s why I said **many *<em>of my functions — not <strong>all</strong>.</em></p></blockquote> <p>Now, we can set an invocation of requiredParam as the default value for role, like so:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">findUsersByRole</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+  role <span class="token operator">=</span> <span class="token function">requiredParam</span><span class="token punctuation">(</span><span class="token string">'role'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  withContactInfo<span class="token punctuation">,</span>
+  includeInactive
+<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span>
+</code></pre></div><p>With the above code, if anyone calls findUsersByRole without supplying a role they will get an Error that says Required parameter, “role” is missing.</p> <p>Technically, we can use this technique with regular default parameters as well; we don’t necessarily need an object. But this trick was too useful not to mention.</p> <h2 id="richer-return-values"><a href="#richer-return-values" aria-hidden="true" class="header-anchor">#</a> Richer Return Values</h2> <p>JavaScript functions can only return a single value. If that value is an object it can contain a lot more information.</p> <p>Consider a function that saves a User to a database. When that function returns an object it can provide a lot of information to the caller.</p> <p>For example, a common pattern is to “upsert” or “merge” data in a save function. Which means, we insert rows into a database table (if they do not already exist) or update them (if they do exist).</p> <p>In such cases, it would be handy to know wether the operation performed by our Save function was an INSERT or an UPDATE. It would also be good to get an accurate representation of exactly what was stored in the database, and it would be good to know the status of the operation; did it succeed, is it pending as part of a larger transaction, did it timeout?</p> <p>When returning an object, it’s easy to communicate all of this info at once.</p> <p>Something like:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">async</span> <span class="token function">saveUser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  upsert <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  transaction<span class="token punctuation">,</span>
+  <span class="token operator">...</span>userInfo
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// save to the DB</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    operation<span class="token punctuation">,</span> <span class="token comment">// e.g 'INSERT'</span>
+    status<span class="token punctuation">,</span> <span class="token comment">// e.g. 'Success'</span>
+    saved<span class="token punctuation">:</span> userInfo
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Technically, the above returns a Promise that resolves to an object but you get the idea.</p> <h2 id="easy-function-composition"><a href="#easy-function-composition" aria-hidden="true" class="header-anchor">#</a> Easy Function Composition</h2> <blockquote><h1 id="“function-composition-is-the-process-of-combining-two-or-more-functions-to-produce-a-new-function-composing-functions-together-is-like-snapping-together-a-series-of-pipes-for-our-data-to-flow-through-”-—-eric-elliott"><a href="#“function-composition-is-the-process-of-combining-two-or-more-functions-to-produce-a-new-function-composing-functions-together-is-like-snapping-together-a-series-of-pipes-for-our-data-to-flow-through-”-—-eric-elliott" aria-hidden="true" class="header-anchor">#</a> “Function composition is the process of combining two or more functions to produce a new function. Composing functions together is like snapping together a series of pipes for our data to flow through.” — <a href="undefined">Eric Elliott</a></h1></blockquote> <p>We can compose functions together using a pipe function that looks something like this:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">pipe</span><span class="token punctuation">(</span><span class="token operator">...</span>fns<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> param <span class="token operator">=&gt;</span> fns<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span>
+    <span class="token punctuation">(</span>result<span class="token punctuation">,</span> fn<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">fn</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    param
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>The above function takes a list of functions and returns a function that can apply the list from left to right, starting with a given parameter and then passing the result of each function in the list to the next function in the list.</p> <p>Don’t worry if you’re confused, there’s an example below that should clear things up.</p> <p>One limitation of this approach is that each function in the list must only receive a single parameter. Luckily, when we RORO that’s not a problem!</p> <p>Here’s an example where we have a saveUser function that pipes a userInfo object through 3 separate functions that validate, normalize, and persist the user information in sequence.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">saveUser</span><span class="token punctuation">(</span>userInfo<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">pipe</span><span class="token punctuation">(</span>
+    validate<span class="token punctuation">,</span>
+    normalize<span class="token punctuation">,</span>
+    persist
+  <span class="token punctuation">)</span><span class="token punctuation">(</span>userInfo<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>We can use a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters" target="_blank" rel="noopener noreferrer">rest parameter<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> in our validate, normalize, and persist functions to destructure only the values that each function needs and still pass everything back to the caller.</p> <p>Here’s a bit of code to give you the gist of it:</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">function</span> <span class="token function">validate</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  id<span class="token punctuation">,</span>
+  firstName<span class="token punctuation">,</span>
+  lastName<span class="token punctuation">,</span>
+  email <span class="token operator">=</span> <span class="token function">requiredParam</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  username <span class="token operator">=</span> <span class="token function">requiredParam</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  pass <span class="token operator">=</span> <span class="token function">requiredParam</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  address<span class="token punctuation">,</span>
+  <span class="token operator">...</span>rest
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// do some validation</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    id<span class="token punctuation">,</span>
+    firstName<span class="token punctuation">,</span>
+    lastName<span class="token punctuation">,</span>
+    email<span class="token punctuation">,</span>
+    username<span class="token punctuation">,</span>
+    pass<span class="token punctuation">,</span>
+    address<span class="token punctuation">,</span>
+    <span class="token operator">...</span>rest
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">normalize</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  email<span class="token punctuation">,</span>
+  username<span class="token punctuation">,</span>
+  <span class="token operator">...</span>rest
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// do some normalizing</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    email<span class="token punctuation">,</span>
+    username<span class="token punctuation">,</span>
+    <span class="token operator">...</span>rest
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">persist</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  upsert <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token operator">...</span>info
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// save userInfo to the DB</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    operation<span class="token punctuation">,</span>
+    status<span class="token punctuation">,</span>
+    saved<span class="token punctuation">:</span> info
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="to-ro-or-not-to-ro-that-is-the-question"><a href="#to-ro-or-not-to-ro-that-is-the-question" aria-hidden="true" class="header-anchor">#</a> To RO or not to RO, that is the question</h2> <p>I said at the outset, <strong>most</strong> of my functions receive an object and <strong>many</strong> of them return an object too.</p> <p>Like any pattern, RORO should be seen as just another tool in our tool box. We use it in places where it adds value by making a list of parameters more clear and flexible and by making a return value more expressive.</p> <p>If you’re writing a function that will only ever need to receive a single parameter, then receiving an object is overkill. Likewise, if you’re writing a function that can communicate a clear and intuitive response to the caller by returning a simple value, there is no need to return an object.</p> <p>An example where I almost never RORO is assertion functions. Suppose we have a function isPositiveInteger that checks wether or not a given parameter is a positive integer, such a function likely wouldn’t benefit from RORO at all.</p> <br> <div class="tip custom-block"><p class="custom-block-title">BASED ON</p> <p><a href="https://medium.freecodecamp.org/elegant-patterns-in-modern-javascript-roro-be01e7669cbd" target="_blank" rel="noopener noreferrer"><code>Elegant patterns in modern JavaScript: RORO</code><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> article from Bill Sourour on freeCodeCamp</p></div></div> <div class="page-edit"><!----> <!----></div> <!----> </div> <!----></div></div>
+    <script src="/web-development-guidelines/assets/js/25.0dd8fbbb.js" defer></script><script src="/web-development-guidelines/assets/js/app.619e207b.js" defer></script>
+  </body>
+</html>

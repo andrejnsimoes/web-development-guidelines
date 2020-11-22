@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Make an Authentication Service</title>
+    <meta name="description" content="">
+    
+    
+    <link rel="preload" href="/web-development-guidelines/assets/css/0.styles.55b66cfc.css" as="style"><link rel="preload" href="/web-development-guidelines/assets/js/app.619e207b.js" as="script"><link rel="preload" href="/web-development-guidelines/assets/js/8.348a10fe.js" as="script"><link rel="prefetch" href="/web-development-guidelines/assets/js/15.35f51890.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/2.cda51ec0.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/3.9f1531d6.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/4.87c874f8.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/5.dd094de2.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/6.e9c321fb.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/7.250c8d9d.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/9.6392689b.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/10.bd1c58ab.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/11.d21adb37.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/12.3cd62bb9.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/13.b26b65b0.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/14.8faec2af.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/16.94cda7f5.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/17.0c7f3574.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/18.b59d2269.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/19.ade22912.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/20.3662ab7a.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/21.d8d39710.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/22.97a30b23.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/23.4c4f544d.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/24.64505df8.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/25.0dd8fbbb.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/26.be3c1b35.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/27.4ecc62cd.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/28.be69aaab.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/29.b3a0daa6.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/30.3e451a60.js"><link rel="prefetch" href="/web-development-guidelines/assets/js/31.f23344bd.js">
+    <link rel="stylesheet" href="/web-development-guidelines/assets/css/0.styles.55b66cfc.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/web-development-guidelines/" class="home-link router-link-active"></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><!---->  <!----> </div> <div class="page"> <div class="content"><p>Angular 4.3 cames with a brand new set of HTTP tools with a bunch of useful features. Perhaps the most long-awaited feature addition is the HttpInterceptor interface.
+Before, there was no way to intercept and modify HTTP requests globally. This has always been possible in AngularJS and the fact that it has been lacking in Angular 2+ has been a sticking point with developers.</p> <p>So why are HTTP interceptors useful? There are many reasons, but one common use case is to automatically attach authentication information to requests. This can take several different forms but most often involves attaching a JSON Web Token (or other form of access token) as an Authorization header with the Bearer scheme.</p> <p>Let’s take a look at how to use Angular’s HttpInterceptor interface to make authenticated HTTP requests.</p> <h2 id="make-an-authentication-service"><a href="#make-an-authentication-service" aria-hidden="true" class="header-anchor">#</a> Make an Authentication Service</h2> <p>When handling authentication in an Angular app, it’s generally best to put everything you need in a dedicated service. Any authentication service should have a few basic methods for allowing users to log in and log out. It should also include a method for retrieving a JSON Web Token from wherever it is stored on the client and a way to determine if the user is authenticated or not.</p> <blockquote><p><em>This article assumes you already have an authentication setup in place and that you are storing JWTs in local storage. We won’t get into a full details here.</em></p></blockquote> <p>One way we can check whether a JWT is expired is to use <strong>angular2-jwt</strong> to return a boolean after checking the exp claim.</p> <pre><code>npm i --save angular2-jwt
+</code></pre> <p>After installing <strong>angular2-jwt</strong>, use it in a service.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/auth/auth.service.ts</span>
+
+<span class="token keyword">import</span> <span class="token punctuation">{</span> Injectable <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/core'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> decode <span class="token keyword">from</span> <span class="token string">'jwt-decode'</span><span class="token punctuation">;</span>
+
+@<span class="token function">Injectable</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">AuthService</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token function">getToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> string <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> localStorage<span class="token punctuation">.</span><span class="token function">getItem</span><span class="token punctuation">(</span><span class="token string">'token'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">isAuthenticated</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> boolean <span class="token punctuation">{</span>
+    <span class="token comment">// get the token</span>
+    <span class="token keyword">const</span> token <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// return a boolean reflecting</span>
+    <span class="token comment">// whether or not the token is expired</span>
+    <span class="token keyword">return</span> <span class="token function">tokenNotExpired</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> token<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="create-an-interceptor"><a href="#create-an-interceptor" aria-hidden="true" class="header-anchor">#</a> Create an Interceptor</h2> <p>The goal is to include the JWT which is in local storage as the Authorization header in any HTTP request that is sent. The first step is to create an interceptor. To do this, create an Injectable class which implements HttpInterceptor.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/auth/token.interceptor.ts</span>
+
+<span class="token keyword">import</span> <span class="token punctuation">{</span> Injectable <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/core'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span>
+    HttpRequest<span class="token punctuation">,</span>
+    HttpHandler<span class="token punctuation">,</span>
+    HttpEvent<span class="token punctuation">,</span>
+    HttpInterceptor
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/common/http'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> AuthService <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'./auth/auth.service'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> Observable <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'rxjs/Observable'</span><span class="token punctuation">;</span>
+
+@<span class="token function">Injectable</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">TokenInterceptor</span> <span class="token keyword">implements</span> <span class="token class-name">HttpInterceptor</span> <span class="token punctuation">{</span>
+
+    <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token keyword">public</span> auth<span class="token punctuation">:</span> AuthService<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    <span class="token function">intercept</span><span class="token punctuation">(</span>request<span class="token punctuation">:</span> HttpRequest<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">,</span> next<span class="token punctuation">:</span> HttpHandler<span class="token punctuation">)</span><span class="token punctuation">:</span> Observable<span class="token operator">&lt;</span>HttpEvent<span class="token operator">&lt;</span>any<span class="token operator">&gt;&gt;</span> <span class="token punctuation">{</span>
+
+    request <span class="token operator">=</span> request<span class="token punctuation">.</span><span class="token function">clone</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        setHeaders<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        Authorization<span class="token punctuation">:</span> <span class="token template-string"><span class="token string">`Bearer </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token keyword">this</span><span class="token punctuation">.</span>auth<span class="token punctuation">.</span><span class="token function">getToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> next<span class="token punctuation">.</span><span class="token function">handle</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Any interceptor that we want to create needs to implement the HttpInterceptor interface. This means that our new class must have a method called intercept with HttpRequest and HttpHandler parameters. Using interceptors is all about changing outgoing requests and incoming responses, but we can’t tamper with the original request–it needs to be immutable. To make changes we need to clone the original request.</p> <p>As we clone the original request we can set the headers we want. In our case its very simple–we just want to add an Authorization header with an auth scheme of Bearer followed by the JSON Web Token in local storage which we get from a call to the getToken method from the AuthService.</p> <p>Calling next.handle means that we are passing control to the next interceptor in the chain, if there is one.</p> <h2 id="add-the-interceptor-to-providers"><a href="#add-the-interceptor-to-providers" aria-hidden="true" class="header-anchor">#</a> Add the Interceptor to Providers</h2> <p>The interceptor needs to be added to the HTTP_INTERCEPTORS array. This is done by making the existing HTTP_INTERCEPTORS array use the new class we’ve created. Add this in the providersarray for our application’s module.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/app.module.ts</span>
+
+<span class="token keyword">import</span> <span class="token punctuation">{</span> <span class="token constant">HTTP_INTERCEPTORS</span> <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/common/http'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> TokenInterceptor <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'./../auth/token.interceptor'</span><span class="token punctuation">;</span>
+
+@<span class="token function">NgModule</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    bootstrap<span class="token punctuation">:</span> <span class="token punctuation">[</span>AppComponent<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    imports<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token operator">...</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    providers<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        provide<span class="token punctuation">:</span> <span class="token constant">HTTP_INTERCEPTORS</span><span class="token punctuation">,</span>
+        useClass<span class="token punctuation">:</span> TokenInterceptor<span class="token punctuation">,</span>
+        multi<span class="token punctuation">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">AppModule</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre></div><p>Now when we make any HTTP request, the user’s token will be attached automatically.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/ping/ping.component.ts</span>
+
+<span class="token keyword">import</span> <span class="token punctuation">{</span> HttpClient <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/common/http'</span><span class="token punctuation">;</span>
+<span class="token comment">// ...</span>
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">AppComponent</span> <span class="token punctuation">{</span>
+
+    <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token keyword">public</span> http<span class="token punctuation">:</span> HttpClient<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">ping</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>http<span class="token punctuation">.</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token string">'https://example.com/api/things'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>
+        data <span class="token operator">=&gt;</span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        err <span class="token operator">=&gt;</span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div><p>This request will include an Authorization header with a value of Bearer ey....</p> <p>It should be noted that Angular’s new HttpClient from @angular/common/http is being used here and not the Http class from @angular/http. If we try to make requests with the traditional Httpclass, the interceptor won’t be hit.</p> <h2 id="looking-for-unauthorized-responses"><a href="#looking-for-unauthorized-responses" aria-hidden="true" class="header-anchor">#</a> Looking for Unauthorized Responses</h2> <p>When tokens expire we will generally get a 401 Unauthorized response back from the server. This gives us an indication that we need the user to log in again to get a new token.</p> <p>We have some choices to make at this point. Do we want to redirect to a specific route that has a login form? Do we want to show a modal? Do we want to attempt to refresh the token?</p> <p>Either way, we need to set up the intereptor to handle responses. The intercept method returns an observable which means we can capture the success and error channels for a response and operate on them however we like. This is the perfect place to do any kind of logging we might want to do. We can also check for 401 Unauthorized responses and prompt the user to log in again.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/auth/jwt.interceptor.ts</span>
+
+<span class="token comment">// ...</span>
+<span class="token keyword">import</span> <span class="token string">'rxjs/add/operator/do'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">JwtInterceptor</span> <span class="token keyword">implements</span> <span class="token class-name">HttpInterceptor</span> <span class="token punctuation">{</span>
+
+    <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token keyword">public</span> auth<span class="token punctuation">:</span> AuthService<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    <span class="token function">intercept</span><span class="token punctuation">(</span>request<span class="token punctuation">:</span> HttpRequest<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">,</span> next<span class="token punctuation">:</span> HttpHandler<span class="token punctuation">)</span><span class="token punctuation">:</span> Observable<span class="token operator">&lt;</span>HttpEvent<span class="token operator">&lt;</span>any<span class="token operator">&gt;&gt;</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">return</span> next<span class="token punctuation">.</span><span class="token function">handle</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">do</span><span class="token punctuation">(</span><span class="token punctuation">(</span>event<span class="token punctuation">:</span> HttpEvent<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>event <span class="token keyword">instanceof</span> <span class="token class-name">HttpResponse</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// do stuff with response if you want</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">:</span> any<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token keyword">instanceof</span> <span class="token class-name">HttpErrorResponse</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">.</span>status <span class="token operator">===</span> <span class="token number">401</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// redirect to the login route</span>
+            <span class="token comment">// or show a modal</span>
+        <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>This is also a great spot to cache any failed requests. This comes in handy if we have token refreshing in place and we want to retry the requests once we have a new token.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/auth/auth.service.ts</span>
+
+<span class="token keyword">import</span> <span class="token punctuation">{</span> HttpRequest <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/common/http'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ...</span>
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">AuthService</span> <span class="token punctuation">{</span>
+
+cachedRequests<span class="token punctuation">:</span> Array<span class="token operator">&lt;</span>HttpRequest<span class="token operator">&lt;</span>any<span class="token operator">&gt;&gt;</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token function">collectFailedRequest</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>cachedRequests<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token function">retryFailedRequests</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+    <span class="token comment">// retry the requests. this method can</span>
+    <span class="token comment">// be called after the token is refreshed</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div><p>The collectFailedRequests method can now be used in the interceptor.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// src/app/auth/jwt.interceptor.ts</span>
+
+<span class="token comment">// ...</span>
+<span class="token function">intercept</span><span class="token punctuation">(</span>request<span class="token punctuation">:</span> HttpRequest<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">,</span> next<span class="token punctuation">:</span> HttpHandler<span class="token punctuation">)</span><span class="token punctuation">:</span> Observable<span class="token operator">&lt;</span>HttpEvent<span class="token operator">&lt;</span>any<span class="token operator">&gt;&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> next<span class="token punctuation">.</span><span class="token function">handle</span><span class="token punctuation">(</span>req<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">do</span><span class="token punctuation">(</span><span class="token punctuation">(</span>event<span class="token punctuation">:</span> HttpEvent<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>event <span class="token keyword">instanceof</span> <span class="token class-name">HttpResponse</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// do stuff with response if you want</span>
+    <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">:</span> any<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token keyword">instanceof</span> <span class="token class-name">HttpErrorResponse</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">.</span>status <span class="token operator">===</span> <span class="token number">401</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>auth<span class="token punctuation">.</span><span class="token function">collectFailedRequest</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>With this in place, we have the option of calling retryFailedRequests after the user’s token is refreshed to fire off the previously-failed requests. This is just a small addition that can help to greatly improve UX, especially if you have tokens with a very short lifetime.</p> <h2 id="wrapping-up"><a href="#wrapping-up" aria-hidden="true" class="header-anchor">#</a> Wrapping Up</h2> <p>Angular 4.3 offers a brand new set of features for working with HTTP requests. Perhaps one of the most useful is the new HttpInterceptor interface which allows us to modify outgoing requests and incoming responses. This feature greatly simplifies a lot of previously tricky operations and removes the need for a lot of class wrappers that have been around since the early days of Angular 2.</p> <br> <div class="tip custom-block"><p class="custom-block-title">BASED ON</p> <p><a href="https://medium.com/@ryanchenkie_40935/angular-authentication-using-the-http-client-and-http-interceptors-2f9d1540eb8" target="_blank" rel="noopener noreferrer"><code>Angular Authentication: Using the Http Client and Http Interceptors</code><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> article from Ryan Chenkie on Medium</p></div></div> <div class="page-edit"><!----> <!----></div> <!----> </div> <!----></div></div>
+    <script src="/web-development-guidelines/assets/js/8.348a10fe.js" defer></script><script src="/web-development-guidelines/assets/js/app.619e207b.js" defer></script>
+  </body>
+</html>
