@@ -1,12 +1,13 @@
 {
-  "name": "javascript-best-practices",
+  "name": "web-development-guidelines",
   "version": "1.0.0",
   "author": "asimoes",
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "start": "vuepress dev docs",
+    "build": "vuepress build blog"
   },
   "devDependencies": {
-    "vuepress": "0.14.2"
+    "markdown-it-video": "0.6.3",
+    "vuepress": "0.14.10"
   }
 }

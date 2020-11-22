@@ -1,2 +1,3 @@
-docs/.vuepress/dist/
+.vuepress/dist/
 node_modules/
+.vscode
